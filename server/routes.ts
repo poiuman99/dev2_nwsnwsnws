@@ -1,30 +1,37 @@
-import { Router, Request, Response } from 'express';
-import fs from 'fs';
-import path from 'path';
+import express, { Request, Response } from "express";
+import { getNews, getNewsBySlug, addNews } from "./data/newsService";
 
-const router = Router();
+const router = express.Router();
 
-// Data inladen
-const loadNews = () => {
-  const data = fs.readFileSync(path.join(__dirname, "/data/news.json", 'utf-8'));
-  return JSON.parse(data);
-};
+router.use(express.urlencoded({ extended: true }));
 
-// Startpagina
-router.get('/', (req: Request, res: Response) => {
-  const news = loadNews();
-  res.render('index', { news });
+router.get("/", (req: Request, res: Response): void => {
+  const news = getNews();
+  res.render("index", { title: "Home Page", news });
 });
 
-// Detailpagina
-router.get('/detail/:slug', (req: Request, res: Response) => {
-  const news = loadNews();
-  const article = news.find((item: any) => item.slug === req.params.slug);
+router.get("/nieuws/:slug", (req: Request, res: Response): void => {
+  const article = getNewsBySlug(req.params.slug);
   if (article) {
-    res.render('detail', { article });
+    res.render("detail", { title: article.title, article });
   } else {
-    res.status(404).send('Artikel niet gevonden');
+    res.status(404).render("404", { title: "404" });
   }
 });
 
-export { router };
+router.get("/add", (req: Request, res: Response): void => {
+  res.render("add", { title: "Voeg Nieuws Toe" });
+});
+
+router.post("/add", (req: Request, res: Response): void => {
+  const { title, content, date } = req.body;
+  const newArticle = { title, content, date };
+  addNews(newArticle);
+  res.redirect("/");
+});
+
+router.use((req: Request, res: Response): void => {
+  res.status(404).render("404", { title: "404" });
+});
+
+export default router;

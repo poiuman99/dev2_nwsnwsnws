@@ -1,21 +1,24 @@
-import express from 'express';
-import { router } from './routes';
-import path from 'path';
+import express, { Application } from "express";
+import path from "path";
+import expressLayouts from "express-ejs-layouts";
+import routes from "./routes";
 
-const app = express();
-const PORT : number = parseInt(<string>process.env.PORT, 10) || 3000;
+const app: Application = express();
+const PORT: number = parseInt(<string>process.env.PORT, 10) || 3000;
 
-// View engine instellen
-app.set('view engine', 'ejs');
+app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// Middleware
-app.use(express.json());
+app.use(expressLayouts);
+app.set("layout", "layouts/main");
+
+app.use(express.static(path.join(__dirname, "/public")));
+
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
-app.use('/', router);
+app.use("/", routes);
 
-app.listen(PORT, () => {
+// Server starten
+app.listen(PORT, (): void => {
   console.log(`Server draait op http://localhost:${PORT}`);
 });
