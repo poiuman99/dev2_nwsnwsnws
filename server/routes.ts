@@ -1,11 +1,12 @@
 import { Router, Request, Response } from 'express';
 import fs from 'fs';
+import path from 'path';
 
 const router = Router();
 
 // Data inladen
 const loadNews = () => {
-  const data = fs.readFileSync('server/data/news.json', 'utf-8');
+  const data = fs.readFileSync(path.join(__dirname, "/data/news.json", 'utf-8'));
   return JSON.parse(data);
 };
 
